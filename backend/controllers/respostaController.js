@@ -1,6 +1,23 @@
 import Resposta from '../models/Resposta.js';
 import Config from '../models/Config.js';
 
+export const createResposta = async (req, res, io) => {
+  try {
+    // ... (lógica de filtrar e salvar a resposta continua a mesma) ...
+    const novaResposta = new Resposta({ texto: textoFiltrado });
+    await novaResposta.save();
+
+    // Emite o evento via WebSocket para a tela de apresentação
+    if (io) { // Verificamos se 'io' existe antes de usar
+      io.emit('novaResposta', novaResposta);
+    }
+
+    res.status(201).json({ message: 'Resposta enviada com sucesso!' });
+  } catch (err) {
+    res.status(500).json({ message: 'Erro no servidor' });
+  }
+};
+
 // Função para filtrar palavras proibidas
 const filtrarPalavras = (texto, palavrasProibidas) => {
   let textoFiltrado = texto;
