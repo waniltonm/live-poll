@@ -7,8 +7,7 @@ import Config from '../models/Config.js';
 const filtrarPalavras = (texto, palavrasProibidas) => {
   let textoFiltrado = texto;
   palavrasProibidas.forEach(palavra => {
-    // A regex garante que estamos substituindo palavras inteiras
-    const regex = new RegExp(`\\b${palavra}\\b`, 'gi'); 
+    const regex = new RegExp(`\\b${palavra}\\b`, 'gi');
     if (textoFiltrado.match(regex)) {
       textoFiltrado = textoFiltrado.replace(regex, '*'.repeat(palavra.length));
     }
@@ -32,8 +31,7 @@ export const createResposta = async (req, res, io) => {
     const novaResposta = new Resposta({ texto: textoFiltrado });
     await novaResposta.save();
 
-    // Emite o evento via WebSocket APENAS se o 'io' existir.
-    // Isso previne o crash na Vercel.
+    // Emite o evento via WebSocket APENAS se o 'io' existir (importante para Vercel)
     if (io) {
       io.emit('novaResposta', novaResposta);
     }
@@ -54,15 +52,3 @@ export const exportRespostas = async (req, res) => {
         if (format === 'csv') {
             let csv = 'texto,createdAt\n';
             respostas.forEach(r => {
-                csv += `"${r.texto.replace(/"/g, '""')}",${r.createdAt.toISOString()}\n`;
-            });
-            res.header('Content-Type', 'text/csv');
-            res.attachment('respostas.csv');
-            return res.send(csv);
-        } else {
-            res.json(respostas);
-        }
-    } catch (err) {
-        res.status(500).json({ message: 'Erro ao exportar respostas' });
-    }
-};
