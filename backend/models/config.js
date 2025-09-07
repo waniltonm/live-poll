@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 
 const ConfigSchema = new mongoose.Schema({
-  // Usaremos um ID estático para garantir que haja apenas um documento de configuração
   singleton: {
     type: String,
     default: 'main_config',

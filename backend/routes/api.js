@@ -5,11 +5,8 @@ import { createResposta, exportRespostas } from '../controllers/respostaControll
 const router = express.Router();
 
 export default (io) => {
-  // Rotas de Configuração
   router.get('/config', getConfig);
   router.post('/config', updateConfig);
-  
-  // Rotas de Resposta
   router.post('/resposta', (req, res) => createResposta(req, res, io));
   router.get('/respostas/export', exportRespostas);
 
