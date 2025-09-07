@@ -1,34 +1,22 @@
+// backend/controllers/respostaController.js
+
 import Resposta from '../models/Resposta.js';
 import Config from '../models/Config.js';
-
-export const createResposta = async (req, res, io) => {
-  try {
-    // ... (lógica de filtrar e salvar a resposta continua a mesma) ...
-    const novaResposta = new Resposta({ texto: textoFiltrado });
-    await novaResposta.save();
-
-    // Emite o evento via WebSocket para a tela de apresentação
-    if (io) { // Verificamos se 'io' existe antes de usar
-      io.emit('novaResposta', novaResposta);
-    }
-
-    res.status(201).json({ message: 'Resposta enviada com sucesso!' });
-  } catch (err) {
-    res.status(500).json({ message: 'Erro no servidor' });
-  }
-};
 
 // Função para filtrar palavras proibidas
 const filtrarPalavras = (texto, palavrasProibidas) => {
   let textoFiltrado = texto;
   palavrasProibidas.forEach(palavra => {
-    const regex = new RegExp(`\\b${palavra}\\b`, 'gi'); // 'gi' para global e case-insensitive
-    textoFiltrado = textoFiltrado.replace(regex, '*'.repeat(palavra.length));
+    // A regex garante que estamos substituindo palavras inteiras
+    const regex = new RegExp(`\\b${palavra}\\b`, 'gi'); 
+    if (textoFiltrado.match(regex)) {
+      textoFiltrado = textoFiltrado.replace(regex, '*'.repeat(palavra.length));
+    }
   });
   return textoFiltrado;
 };
 
-// Cria uma nova resposta
+// VERSÃO ÚNICA E CORRIGIDA da função createResposta
 export const createResposta = async (req, res, io) => {
   try {
     const { texto } = req.body;
@@ -44,12 +32,16 @@ export const createResposta = async (req, res, io) => {
     const novaResposta = new Resposta({ texto: textoFiltrado });
     await novaResposta.save();
 
-    // Emite o evento via WebSocket para a tela de apresentação
-    io.emit('novaResposta', novaResposta);
+    // Emite o evento via WebSocket APENAS se o 'io' existir.
+    // Isso previne o crash na Vercel.
+    if (io) {
+      io.emit('novaResposta', novaResposta);
+    }
 
     res.status(201).json({ message: 'Resposta enviada com sucesso!' });
   } catch (err) {
-    res.status(500).json({ message: 'Erro no servidor' });
+    console.error(err); // Adiciona um log do erro no servidor para depuração
+    res.status(500).json({ message: 'Erro no servidor ao criar resposta.' });
   }
 };
 
@@ -57,7 +49,7 @@ export const createResposta = async (req, res, io) => {
 export const exportRespostas = async (req, res) => {
     try {
         const respostas = await Resposta.find().sort({ createdAt: -1 });
-        const format = req.query.format || 'json'; // json por padrão, pode ser 'csv'
+        const format = req.query.format || 'json';
 
         if (format === 'csv') {
             let csv = 'texto,createdAt\n';

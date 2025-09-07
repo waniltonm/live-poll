@@ -2,18 +2,16 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 // Importação dos componentes de cada tela
-import TelaApresentacao from './components/TelaApresentacao';
-import TelaResposta from './components/TelaResposta';
-import TelaConfiguracao from './components/TelaConfiguracao';
+import TelaApresentacao from './components/TelaApresentacao'; //
+import TelaResposta from './components/TelaResposta'; //
+import TelaConfiguracao from './components/TelaConfiguracao'; //
 
 // Importação do CSS principal
-import './index.css';
+import './index.css'; //
 
-
-
-// URL base do seu servidor backend.
-// Agora é um caminho relativo para funcionar com os rewrites da Vercel.
-const API_URL = '/api'; // Mude de 'http://localhost:5000' para '/api'
+// CORREÇÃO AQUI: A URL base agora é vazia para o deploy.
+// As chamadas nos componentes já incluem o '/api'.
+const API_URL = '';
 
 function App() {
   return (
